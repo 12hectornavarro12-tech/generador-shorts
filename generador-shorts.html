@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de Guiones · YouTube Shorts</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c26;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.14);
+    --accent: #ff3c6e;
+    --accent2: #ff8c42;
+    --text: #f0eeff;
+    --muted: #7a788f;
+    --muted2: #4a4860;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,60,110,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,60,110,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .glow {
+    position: fixed;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,60,110,0.08) 0%, transparent 70%);
+    top: -200px; left: -200px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .glow2 {
+    position: fixed;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,140,66,0.06) 0%, transparent 70%);
+    bottom: -100px; right: -100px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* Header */
+  header { margin-bottom: 48px; }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(255,60,110,0.1);
+    border: 1px solid rgba(255,60,110,0.2);
+    padding: 4px 12px;
+    border-radius: 99px;
+    margin-bottom: 20px;
+  }
+  .badge::before { content: '▶'; font-size: 9px; }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 6vw, 58px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #f0eeff 0%, #ff3c6e 50%, #ff8c42 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 14px;
+  }
+  header p {
+    font-size: 16px;
+    color: var(--muted);
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 480px;
+  }
+
+  /* API Key section */
+  .api-section {
+    background: var(--surface);
+    border: 1px solid rgba(255,140,66,0.2);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 32px;
+  }
+  .api-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .api-icon {
+    width: 28px; height: 28px;
+    background: rgba(255,140,66,0.15);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .api-section-header span {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ff8c42;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .api-section p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+  .api-section a { color: var(--accent2); text-decoration: none; border-bottom: 1px solid rgba(255,140,66,0.3); }
+  .api-section a:hover { border-color: var(--accent2); }
+  .api-input-row { display: flex; gap: 8px; }
+  .api-input-row input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border-hover);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-family: 'DM Sans', monospace;
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+  }
+  .api-input-row input:focus { border-color: rgba(255,140,66,0.4); }
+  .btn-save-key {
+    background: rgba(255,140,66,0.15);
+    border: 1px solid rgba(255,140,66,0.3);
+    color: #ff8c42;
+    border-radius: var(--radius-sm);
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .btn-save-key:hover { background: rgba(255,140,66,0.25); }
+  .key-status { font-size: 12px; margin-top: 8px; color: var(--muted); }
+  .key-status.ok { color: #4ade80; }
+
+  /* Form */
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    margin-bottom: 20px;
+  }
+  .section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .field { margin-bottom: 24px; }
+  .field:last-child { margin-bottom: 0; }
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
+  }
+  textarea, input[type="text"], select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+  }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+  textarea:focus, input[type="text"]:focus, select:focus {
+    border-color: rgba(255,60,110,0.4);
+  }
+  textarea::placeholder, input::placeholder { color: var(--muted2); }
+  select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237a788f' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  /* Chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 99px;
+    border: 1px solid var(--border-hover);
+    color: var(--muted);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .chip:hover { border-color: rgba(255,60,110,0.3); color: var(--text); }
+  .chip.active {
+    background: rgba(255,60,110,0.12);
+    border-color: rgba(255,60,110,0.4);
+    color: #ff6b8e;
+    font-weight: 500;
+  }
+
+  /* Generate button */
+  .btn-generate {
+    width: 100%;
+    padding: 16px;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, #ff3c6e, #ff8c42);
+    color: white;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: opacity 0.2s, transform 0.15s;
+  }
+  .btn-generate::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+  }
+  .btn-generate:hover { opacity: 0.92; transform: translateY(-1px); }
+  .btn-generate:active { transform: translateY(0) scale(0.99); }
+  .btn-generate:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* Result */
+  .result-section { display: none; margin-top: 28px; }
+  .result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .result-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .result-actions { display: flex; gap: 8px; }
+  .btn-sm {
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-hover);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .btn-sm:hover { background: var(--surface2); color: var(--text); border-color: var(--border-hover); }
+  .result-body {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    font-size: 15px;
+    line-height: 1.85;
+    color: var(--text);
+    white-space: pre-wrap;
+    min-height: 100px;
+    font-weight: 300;
+  }
+  .result-body .loading {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 1.2s infinite; }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes pulse { 0%,80%,100%{opacity:0.2;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
+
+  .stats-bar {
+    display: flex;
+    gap: 20px;
+    padding: 12px 0 0;
+  }
+  .stat {
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .stat strong { color: var(--text); font-weight: 500; }
+
+  /* Error */
+  .error-box {
+    background: rgba(255,60,110,0.08);
+    border: 1px solid rgba(255,60,110,0.2);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    font-size: 13px;
+    color: #ff6b8e;
+    margin-top: 12px;
+    display: none;
+    line-height: 1.6;
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    font-size: 12px;
+    color: var(--muted2);
+  }
+
+  @media (max-width: 540px) {
+    .wrap { padding: 32px 16px 60px; }
+    .form-card { padding: 20px; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .result-body { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="glow2"></div>
+
+<div class="wrap">
+  <header>
+    <div class="badge">IA · YouTube Shorts</div>
+    <h1>Generador<br>de Guiones</h1>
+    <p>Crea guiones optimizados para vídeos cortos verticales en segundos, con IA.</p>
+  </header>
+
+  <!-- API Key -->
+  <div class="api-section">
+    <div class="api-section-header">
+      <div class="api-icon">🔑</div>
+      <span>API Key de Anthropic</span>
+    </div>
+    <p>Necesitas una API key gratuita de Anthropic para usar la IA. Consíguela en <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → "Get API Keys". Se guarda solo en tu navegador.</p>
+    <div class="api-input-row">
+      <input type="password" id="api-key" placeholder="sk-ant-..." autocomplete="off" />
+      <button class="btn-save-key" onclick="saveKey()">Guardar</button>
+    </div>
+    <div class="key-status" id="key-status">Sin API key guardada</div>
+  </div>
+
+  <!-- Form -->
+  <div class="form-card">
+    <div class="section-label">Configura tu guión</div>
+
+    <div class="field">
+      <label>Tema del Short *</label>
+      <textarea id="topic" placeholder="Ej: 3 trucos para dormir mejor en menos de 5 minutos"></textarea>
+    </div>
+
+    <div class="field grid-2">
+      <div>
+        <label>Categoría</label>
+        <select id="category">
+          <option value="educativo">Educativo / Tutorial</option>
+          <option value="entretenimiento">Entretenimiento</option>
+          <option value="motivacional">Motivacional</option>
+          <option value="humor">Humor / Comedia</option>
+          <option value="lifestyle">Lifestyle / Consejos</option>
+          <option value="noticias">Noticias / Tendencias</option>
+          <option value="storytelling">Storytelling</option>
+          <option value="producto">Reseña de producto</option>
+        </select>
+      </div>
+      <div>
+        <label>Duración objetivo</label>
+        <select id="duration">
+          <option value="30">30 segundos (~80 palabras)</option>
+          <option value="45">45 segundos (~120 palabras)</option>
+          <option value="60" selected>60 segundos (~160 palabras)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Tono</label>
+      <div class="chips" id="tone-chips">
+        <div class="chip active" data-value="dinámico">⚡ Dinámico</div>
+        <div class="chip" data-value="cercano">🤝 Cercano</div>
+        <div class="chip" data-value="profesional">💼 Profesional</div>
+        <div class="chip" data-value="humorístico">😄 Humorístico</div>
+        <div class="chip" data-value="inspirador">🔥 Inspirador</div>
+        <div class="chip" data-value="misterioso">🔮 Misterioso</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Elementos a incluir</label>
+      <div class="chips" id="elements-chips">
+        <div class="chip active" data-value="gancho">🎣 Gancho inicial</div>
+        <div class="chip active" data-value="cta">📣 Llamada a la acción</div>
+        <div class="chip" data-value="estadisticas">📊 Estadísticas</div>
+        <div class="chip" data-value="historia">📖 Historia personal</div>
+        <div class="chip" data-value="tips">✅ Lista de tips</div>
+        <div class="chip" data-value="pregunta">❓ Pregunta al final</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Público objetivo <span style="font-weight:300;color:var(--muted2)">(opcional)</span></label>
+      <input type="text" id="audience" placeholder="Ej: jóvenes de 18-25 años interesados en finanzas" />
+    </div>
+  </div>
+
+  <button class="btn-generate" id="btn-gen" onclick="generateScript()">
+    ▶ &nbsp; Generar guión
+  </button>
+
+  <div class="error-box" id="error-box"></div>
+
+  <!-- Result -->
+  <div class="result-section" id="result-section">
+    <div class="result-header">
+      <div class="result-title">▶ Guión listo</div>
+      <div class="result-actions">
+        <button class="btn-sm" onclick="copyScript()">Copiar</button>
+        <button class="btn-sm" onclick="generateScript()">Regenerar</button>
+      </div>
+    </div>
+    <div class="result-body" id="result-body"></div>
+    <div class="stats-bar" id="stats-bar" style="display:none">
+      <div class="stat">⏱ <strong id="s-time"></strong></div>
+      <div class="stat">✍️ <strong id="s-words"></strong></div>
+      <div class="stat">📱 <strong id="s-score"></strong></div>
+    </div>
+  </div>
+
+  <footer>
+    Generador de Guiones para YouTube Shorts · Powered by Claude (Anthropic)
+  </footer>
+</div>
+
+<script>
+  let selectedTone = 'dinámico';
+  let selectedElements = new Set(['gancho', 'cta']);
+
+  // Load saved key
+  window.addEventListener('load', () => {
+    const saved = localStorage.getItem('anthropic_key');
+    if (saved) {
+      document.getElementById('api-key').value = saved;
+      document.getElementById('key-status').textContent = '✓ API key guardada';
+      document.getElementById('key-status').classList.add('ok');
+    }
+  });
+
+  function saveKey() {
+    const key = document.getElementById('api-key').value.trim();
+    if (!key.startsWith('sk-')) {
+      document.getElementById('key-status').textContent = '⚠ Formato incorrecto. Debe empezar por sk-ant-...';
+      document.getElementById('key-status').classList.remove('ok');
+      return;
+    }
+    localStorage.setItem('anthropic_key', key);
+    document.getElementById('key-status').textContent = '✓ API key guardada correctamente';
+    document.getElementById('key-status').classList.add('ok');
+  }
+
+  // Tone chips
+  document.querySelectorAll('#tone-chips .chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      document.querySelectorAll('#tone-chips .chip').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+      selectedTone = this.dataset.value;
+    });
+  });
+
+  // Element chips
+  document.querySelectorAll('#elements-chips .chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      this.classList.toggle('active');
+      if (this.classList.contains('active')) selectedElements.add(this.dataset.value);
+      else selectedElements.delete(this.dataset.value);
+    });
+  });
+
+  async function generateScript() {
+    const apiKey = localStorage.getItem('anthropic_key') || document.getElementById('api-key').value.trim();
+    const topic = document.getElementById('topic').value.trim();
+    const errorBox = document.getElementById('error-box');
+
+    errorBox.style.display = 'none';
+
+    if (!apiKey || !apiKey.startsWith('sk-')) {
+      errorBox.textContent = '⚠ Introduce y guarda tu API key de Anthropic primero (arriba).';
+      errorBox.style.display = 'block';
+      return;
+    }
+    if (!topic) {
+      errorBox.textContent = '⚠ Escribe el tema de tu Short antes de generar.';
+      errorBox.style.display = 'block';
+      document.getElementById('topic').focus();
+      return;
+    }
+
+    const category = document.getElementById('category').value;
+    const duration = document.getElementById('duration').value;
+    const audience = document.getElementById('audience').value.trim();
+    const elements = Array.from(selectedElements);
+
+    const btn = document.getElementById('btn-gen');
+    btn.disabled = true;
+    btn.textContent = '⏳  Generando...';
+
+    const resultSection = document.getElementById('result-section');
+    const resultBody = document.getElementById('result-body');
+    const statsBar = document.getElementById('stats-bar');
+    resultSection.style.display = 'block';
+    statsBar.style.display = 'none';
+    resultBody.innerHTML = '<div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div>&nbsp; Escribiendo guión...</div>';
+
+    const elementMap = {
+      gancho: 'Empieza con un gancho impactante en los primeros 3 segundos',
+      cta: 'Incluye una llamada a la acción clara al final (seguir, comentar, compartir)',
+      estadisticas: 'Incluye al menos una estadística o dato sorprendente relevante',
+      historia: 'Incluye una breve historia o anécdota personal relacionada',
+      tips: 'Estructura el contenido como una lista numerada de tips o pasos',
+      pregunta: 'Termina con una pregunta que invite a comentar'
+    };
+    const elementInstructions = elements.map(e => elementMap[e]).filter(Boolean).join('. ');
+
+    const prompt = `Eres un experto guionista de YouTube Shorts en castellano. Crea un guión optimizado con estas características:
+
+TEMA: ${topic}
+CATEGORÍA: ${category}
+DURACIÓN: ${duration} segundos
+TONO: ${selectedTone}
+${audience ? `PÚBLICO: ${audience}` : ''}
+${elementInstructions ? `INSTRUCCIONES: ${elementInstructions}` : ''}
+
+FORMATO:
+- Usa [ETIQUETAS] para indicar acciones de cámara o texto en pantalla
+- Separa secciones con encabezados en mayúsculas: GANCHO, DESARROLLO, CIERRE
+- Natural y conversacional al leer en voz alta
+- Ajusta palabras a la duración (velocidad ~2,5 palabras/segundo)
+- Escribe SOLO el guión, sin introducción ni explicaciones`;
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error?.message || `Error ${response.status}`);
+      }
+
+      const data = await response.json();
+      const text = data.content?.map(b => b.text || '').join('') || '';
+
+      resultBody.textContent = text;
+
+      const wordCount = text.split(/\s+/).filter(Boolean).length;
+      const estimatedTime = Math.round(wordCount / 2.5);
+      document.getElementById('s-time').textContent = `~${estimatedTime} segundos`;
+      document.getElementById('s-words').textContent = `${wordCount} palabras`;
+      document.getElementById('s-score').textContent = wordCount >= 80 ? 'Longitud óptima ✓' : 'Guión corto';
+      statsBar.style.display = 'flex';
+
+      resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    } catch (err) {
+      resultBody.textContent = '';
+      resultSection.style.display = 'none';
+      errorBox.textContent = `⚠ Error: ${err.message}. Verifica que tu API key sea correcta y tenga créditos.`;
+      errorBox.style.display = 'block';
+    }
+
+    btn.disabled = false;
+    btn.textContent = '▶   Generar guión';
+  }
+
+  async function copyScript() {
+    const text = document.getElementById('result-body').textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      const btns = document.querySelectorAll('.btn-sm');
+      btns[0].textContent = '✓ Copiado';
+      setTimeout(() => btns[0].textContent = 'Copiar', 2000);
+    } catch(e) {}
+  }
+</script>
+</body>
+</html>
